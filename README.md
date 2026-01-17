@@ -46,7 +46,17 @@
 ### Объявление функции:
 ``` text
 fn main
-  output "Hello...World"
+output "Выполняется...каждую...секунду"
+end
+```
+``` text
+fn setup
+output "Выполняется...при...запуске"
+end
+```
+``` text
+fn custom
+output "Выполняется...при...комманде"
 end
 ```
 ### Создание переменных:
@@ -173,12 +183,12 @@ pack path/to/your/mod.mh
 
 ## Запуск:
 ``` bash
-python main.py путь/к/скрипту.mc путь/к/миру
+mlang путь/к/скрипту.mc путь/к/миру
 ```
 ## Пример:
 
 ``` bash
-python main.py scripts/script.mc "C:\Users\username\AppData\Roaming\.minecraft\saves\World"
+lang scripts/script.mc "C:\Users\username\AppData\Roaming\.minecraft\saves\World"
 ```
 ## Структура генерируемого датапака
 ```text
