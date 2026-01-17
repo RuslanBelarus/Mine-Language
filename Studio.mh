@@ -1,0 +1,82 @@
+class Studio:
+
+    LocTokens = [
+        ['create', '<cr>'],
+        ['output', '<out>'],
+        ['mode', '<md>'],
+        ['<string>', '<tp.string>'],
+        ['<array>', '<tp.array>'],
+        ['<int>', '<tp.int>'],
+        ['vec3', '<vc>'],
+    ]
+
+    def LocalAnoncement(values, tokens_line, extokens):
+        
+        print(tokens_line)
+
+        type TypeString = Callable[[None], dict[str]]
+        String: TypeString = lambda: {"value": None}
+
+        type TypeArray = Callable[[None], dict[list[int]]]
+        Array: TypeArray = lambda: {"values": []}
+
+        type TypeInt = Callable[[None], dict[int]]
+        Int: TypeInt = lambda: {"value": 0}
+
+        if locwork.verifTokenQueue(tokens_line, 'cr', 'tp.string', 'word'):
+            _, value = locwork.getTokenValues(tokens_line[2])
+            values[value] = String()
+            
+        elif locwork.verifTokenQueue(tokens_line, 'cr', 'tp.array', 'word'):
+            _, value = locwork.getTokenValues(tokens_line[2])
+            values[value] = Array()
+            
+        elif locwork.verifTokenQueue(tokens_line, 'cr', 'tp.int', 'word'):
+            _, value = locwork.getTokenValues(tokens_line[2])
+            values[value] = Int()
+        
+        elif locwork.verifTokenQueue(tokens_line, 'md', 'word', 'word', 'string'):
+            _, item_name = locwork.getTokenValues(tokens_line[1])
+            _, part_name = locwork.getTokenValues(tokens_line[2])
+            _, value = locwork.getTokenValues(tokens_line[3])
+
+            values[item_name][part_name] = value
+        
+        elif locwork.verifTokenQueue(tokens_line, 'md', 'word', 'word', 'int'):
+            _, item_name = locwork.getTokenValues(tokens_line[1])
+            _, part_name = locwork.getTokenValues(tokens_line[2])
+            _, value = locwork.getTokenValues(tokens_line[3])
+
+            values[item_name][part_name] = int(value)
+            
+        elif locwork.verifTokenQueue(tokens_line, 'md', 'word', 'vc', 'int', 'int', 'int'):
+            _, item = locwork.getTokenValues(tokens_line[1])
+            _, x = locwork.getTokenValues(tokens_line[3])
+            _, y = locwork.getTokenValues(tokens_line[4])
+            _, z = locwork.getTokenValues(tokens_line[5])
+
+            values[item]["values"].append([int(x), int(y), int(z)])
+
+        else:
+            extokens.append(tokens_line)
+
+        return extokens
+
+    def TranslatedFunctions(tokens_line, excode, values):
+        
+        if locwork.verifTokenQueue(tokens_line, 'out', 'string'):
+            _, value = locwork.getTokenValues(tokens_line[1])
+            excode += f'tellraw @a "{value.replace('...',' ')}"'
+            
+        elif locwork.verifTokenQueue(tokens_line, 'out', 'word', 'word'):
+            _, item = locwork.getTokenValues(tokens_line[1])
+            _, key = locwork.getTokenValues(tokens_line[2])
+            excode += f'tellraw @a "{values[item][key]}"'
+        
+        elif locwork.verifTokenQueue(tokens_line, 'out', 'tp.string', 'string', 'word', 'word'):
+            _, text = locwork.getTokenValues(tokens_line[2])
+            _, item = locwork.getTokenValues(tokens_line[3])
+            _, key = locwork.getTokenValues(tokens_line[4])
+            excode += f'tellraw @a "{text.replace('...', ' ')} {values[item][key]}"'
+        
+        return excode
