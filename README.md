@@ -34,12 +34,12 @@
 
 | Токен	| Описание	| Пример |
 |:---------|:---------|:---------|
-| <fn>	| Объявление функции	| fn main
-| <end>	| Конец функции |	end
-| <ex>	| Вызов функции |	execute function
-| <int>	| Целое число |	42
-| <string>	| Строка |	"Hello"
-| <word>	| Идентификатор |	myVariable
+| fn	| Объявление функции	| fn main
+| end	| Конец функции |	end
+| ex	| Вызов функции |	execute function
+| int	| Целое число |	42
+| string	| Строка |	"Hello"
+| word	| Идентификатор |	myVariable
 
 # Скриптинг
 ## Базовый синтаксис
@@ -75,20 +75,18 @@ execute other_function
 pack scripts/studio.mh
 pack scripts/mod.mh
 
+create <string> welcome
+mode welcome value "Welcome...to...our...server!"
+
+create <int> time
+mode time value 0
+
 fn setup
-  create <string> welcome
-  mode welcome value "Welcome...to...our...server!"
-  
-  output welcome value
+output welcome value
 end
 
 fn main
-  create <int> timer
-  mode timer value 0
-  
-  cycle 1
-  
-  output <string> "Current...time:" timer value
+output <string> "Current...time:" time value
 end
 ```
 
@@ -115,28 +113,28 @@ class YourMod:
 ```python
 class CustomMod:
     LocTokens = [
-        ['create_block', '<create.block>'],
+        ['<block>', '<tp.block>'],
         ['place', '<place>']
     ]
     
     def LocalAnoncement(values, tokens_line, extokens):
         # Определяем новый тип - блок
         type BlockType = Callable[[None], dict[str]]
-        Block: BlockType = lambda: {"type": "stone", "position": [0, 0, 0]}
+        Block: BlockType = lambda: {"type": None}
         
-        if locwork.verifTokenQueue(tokens_line, 'create.block', 'word'):
-            _, block_name = locwork.getTokenValues(tokens_line[1])
+        if locwork.verifTokenQueue(tokens_line, 'cr', 'tp.block', 'word'):
+            _, block_name = locwork.getTokenValues(tokens_line[2])
             values[block_name] = Block()
         
         return extokens
     
     def TranslatedFunctions(tokens_line, excode, values):
         # Генерация команды установки блока
-        if locwork.verifTokenQueue(tokens_line, 'place', 'word', 'int', 'int', 'int'):
+        if locwork.verifTokenQueue(tokens_line, 'place', 'word', 'vc', 'int', 'int', 'int'):
             _, block = locwork.getTokenValues(tokens_line[1])
-            _, x = locwork.getTokenValues(tokens_line[2])
-            _, y = locwork.getTokenValues(tokens_line[3])
-            _, z = locwork.getTokenValues(tokens_line[4])
+            _, x = locwork.getTokenValues(tokens_line[3])
+            _, y = locwork.getTokenValues(tokens_line[4])
+            _, z = locwork.getTokenValues(tokens_line[5])
             
             excode += f'setblock {x} {y} {z} {values[block]["type"]}'
         
@@ -233,8 +231,8 @@ class TeleportMod:
     def TranslatedFunctions(tokens_line, excode, values):
         if locwork.verifTokenQueue(tokens_line, 'tp', 'word', 'to', 'word'):
             _, entity = locwork.getTokenValues(tokens_line[1])
-            _, destination = locwork.getTokenValues(tokens_line[3])
-            excode += f'tp {entity} {destination}'
+            _, target = locwork.getTokenValues(tokens_line[3])
+            excode += f'tp {entity} {target}'
         return excode
 ```
 #### Использование в скрипте:
